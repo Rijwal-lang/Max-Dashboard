@@ -32,7 +32,15 @@ async function callPython(path, options = {}) {
   }
 }
 
-const fullscreenBtn = document.getElementById("fullscreenBtn");\n\nfunction updateFullscreenButton() {\n  fullscreenBtn.textContent = document.fullscreenElement ? "⛶ Exit Fullscreen" : "⛶ Fullscreen";\n}\n\ndocument.addEventListener("fullscreenchange", updateFullscreenButton);\n\nfullscreenBtn.addEventListener("click", async () => {
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+function updateFullscreenButton() {
+  fullscreenBtn.textContent = document.fullscreenElement ? "⛶ Exit Fullscreen" : "⛶ Fullscreen";
+}
+
+document.addEventListener("fullscreenchange", updateFullscreenButton);
+
+fullscreenBtn.addEventListener("click", async () => {
   try {
     if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
     else await document.exitFullscreen();
