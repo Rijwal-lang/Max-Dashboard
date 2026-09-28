@@ -6,8 +6,53 @@
 <title>Max Dashboard</title>
 <style>
 html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
 img{width:100vw;height:100vh;object-fit:contain;display:block}
+#fullscreenBtn{position:fixed;right:16px;bottom:16px;padding:10px 14px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font:14px Arial;cursor:pointer;backdrop-filter:blur(8px)}
+#status{position:fixed;left:16px;bottom:16px;color:#8ff;font:12px Arial;opacity:.8}
 </style>
 </head>
-<body><img src="dashboard.png" alt="Max Dashboard"></body>
+<body>
+<img src="dashboard.png" alt="Max Dashboard">
+<button id="fullscreenBtn" type="button">⛶ Fullscreen</button>
+<div id="status">Python bridge: checking…</div>
+<script>
+const PYTHON = "http://127.0.0.1:8765";
+
+async function callPython(path, options = {}) {
+  try {
+    const r = await fetch(PYTHON + path, {
+      ...options,
+      headers: {"Content-Type":"application/json", ...(options.headers || {})}
+    });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  } catch (e) {
+    throw e;
+  }
+}
+
+document.getElementById("fullscreenBtn").addEventListener("click", async () => {
+  try {
+    if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+    else await document.exitFullscreen();
+  } catch (e) {
+    console.error(e);
+  }
+});
+
+async function pingPython() {
+  const status = document.getElementById("status");
+  try {
+    const data = await callPython("/ping");
+    status.textContent = "Python bridge: connected ✓";
+    status.style.color = "#7cff9b";
+  } catch {
+    status.textContent = "Python bridge: offline";
+    status.style.color = "#ff9b9b";
+  }
+}
+pingPython();
+</script>
+</body>
 </html>
