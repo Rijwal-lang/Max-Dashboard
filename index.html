@@ -8,7 +8,7 @@
 html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}
 body{display:flex;align-items:center;justify-content:center}
 img{width:100vw;height:100vh;object-fit:contain;display:block}
-#fullscreenBtn{position:fixed;right:16px;bottom:16px;padding:10px 14px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font:14px Arial;cursor:pointer;backdrop-filter:blur(8px)}
+#fullscreenBtn{position:fixed;z-index:99999;right:16px;bottom:16px;padding:12px 18px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font:600 14px Arial;cursor:pointer;backdrop-filter:blur(8px)}
 #status{position:fixed;left:16px;bottom:16px;color:#8ff;font:12px Arial;opacity:.8}
 </style>
 </head>
@@ -32,7 +32,7 @@ async function callPython(path, options = {}) {
   }
 }
 
-document.getElementById("fullscreenBtn").addEventListener("click", async () => {
+const fullscreenBtn = document.getElementById("fullscreenBtn");\n\nfunction updateFullscreenButton() {\n  fullscreenBtn.textContent = document.fullscreenElement ? "⛶ Exit Fullscreen" : "⛶ Fullscreen";\n}\n\ndocument.addEventListener("fullscreenchange", updateFullscreenButton);\n\nfullscreenBtn.addEventListener("click", async () => {
   try {
     if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
     else await document.exitFullscreen();
