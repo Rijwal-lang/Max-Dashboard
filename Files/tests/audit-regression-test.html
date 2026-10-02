@@ -1,0 +1,39 @@
+<!doctype html><meta charset="utf-8"><title>Max Dashboard audit regression tests</title>
+<pre id="out">Running…</pre><script>
+"use strict";
+const out=document.getElementById("out"),KEY="maxdashboard:max-dashboard:v4",REV=KEY+":rev",LAY=KEY+":layout",LAYREV=LAY+":rev";
+const saved={state:localStorage.getItem(KEY),rev:localStorage.getItem(REV),layout:localStorage.getItem(LAY),layoutRev:localStorage.getItem(LAYREV)};
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10),today=iso(new Date()),yesterday=iso(new Date(Date.now()-86400000));
+const id=()=>Math.random().toString(36).slice(2,14)+"-test";
+const state={
+ schema:4,
+ focus:[["Good task",1,today,id()],["Corrupt task"],["Future task",1,"2099-12-31",id()]],
+ goals:[],notes:[],proj:[["Custom",42,"#ffffff"]],
+ xp:123,streak:{last:"",n:0},pomo:{day:today,n:500},done:{day:today,n:99},
+ pref:{b:"self",e:"google"},hist:{[today]:999,"2099-12-31":1},
+ pomoHist:{[today]:500},timer:{mode:25,T:0,st:"paused",end:0,id:""},rewards:{}
+};
+localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem(REV,"0");
+const f=document.createElement("iframe");f.src="../../index.html?test=1";f.style.display="none";document.body.appendChild(f);
+function fail(m){throw new Error(m)}
+f.onload=()=>setTimeout(()=>{
+ try{
+   const raw=localStorage.getItem(KEY),s=JSON.parse(raw);
+   if(s.focus.length!==1||s.focus[0][0]!=="Good task")fail("per-member task repair failed");
+   if(s.hist[today]!==1||Object.prototype.hasOwnProperty.call(s.hist,"2099-12-31"))fail("task-derived history repair failed");
+   if(s.xp!==123)fail("Pomodoro cap incorrectly awarded XP");
+   if(s.timer.st!=="paused"||s.timer.T!==0)fail("paused zero-second timer resurrected");
+   if(s.timer.end!==0)fail("timer normalization failed");
+   const input=f.contentDocument.querySelector('#proj input[type="range"]');
+   if(!input)fail("custom project input missing");
+   const color=f.contentWindow.getComputedStyle(input).getPropertyValue("--pc").trim().toLowerCase();
+   if(color!=="#ffffff")fail("custom imported project color was not preserved");
+   out.textContent="PASS: startup, per-item repair, future-date rejection, task-derived history, Pomodoro cap, zero timer preservation, and custom project colors.";
+ }catch(e){out.textContent="FAIL: "+e.message}
+ finally{
+   for(const [k,v] of Object.entries(saved)){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(_){}}
+   try{f.remove()}catch(_){}
+ }
+},1800);
+f.onerror=()=>{out.textContent="FAIL: dashboard iframe failed to load"};
+</script>

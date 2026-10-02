@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Max Dashboard startup test</title>
+<pre id="out">Loading…</pre><script>
+"use strict";
+const out=document.getElementById("out");
+const KEY="maxdashboard:max-dashboard:v4",REV=KEY+":rev";
+try{localStorage.removeItem(KEY);localStorage.removeItem(REV)}catch(e){}
+const f=document.createElement("iframe");f.src="../../index.html?test=1";f.style.display="none";document.body.appendChild(f);
+f.onload=()=>setTimeout(()=>{
+  const d=f.contentDocument?.documentElement,s=f.contentWindow;
+  const errors=s.__MAX_STARTUP_ERRORS||[];
+  if(d?.dataset.startupTest!=="pass")throw new Error("Dashboard startup test failed: "+(errors.join(" | ")||d?.dataset.startupErrors||"unknown startup failure"));
+  let state;try{state=JSON.parse(f.contentWindow.localStorage.getItem(KEY))}catch(e){throw new Error("State could not be parsed: "+e.message)}
+  if(!state||state.schema!==4)throw new Error("State schema was not initialized correctly.");
+  out.textContent="PASS: dashboard booted through the explicit startup path with no uncaught errors.";
+},1500);
+f.onerror=()=>{throw new Error("Dashboard iframe failed to load.")};
+</script>

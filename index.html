@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self'; style-src-attr 'none'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.open-meteo.com; media-src 'self' blob:; upgrade-insecure-requests; worker-src 'none'; child-src 'none'; frame-src 'none'; manifest-src 'none'">
+<title>Max Dashboard</title>
+
+<link rel="stylesheet" href="Files/dashboard.css?v=10" integrity="sha256-ASLS/O2pvuTN1r3kNy6S98vdaICuDOQw22bFtj13DyQ="></head><body>
+<script src="Files/images.js" integrity="sha256-DKSNkQ2lrHrO9ttjyRki/hijJqi7IDDa0PtmcprA6M0="></script>
+<h1 class="vh">Max Dashboard</h1>
+<div id="toast" role="status" aria-live="polite"></div>
+<nav aria-label="Sections"><img class="av" id="av" alt="Max Cooper"><div class="logo ctr">Max Cooper</div><div class="tag ctr">Same Kid. Bigger Ideas.</div><div class="xp"><span id="lv">Level 1</span> · <span id="xpn">0</span> XP<div class="bar"><i id="xpb"></i></div></div>
+<button type="button" class="on" data-go="top">🏠 Home</button><button type="button" data-go="p-proj">💻 Projects</button><button type="button" data-go="p-notes">📝 Notes</button><button type="button" data-go="p-sch">📅 Schedule</button><span class="sp"></span>
+<button type="button" id="fs">⛶ Fullscreen (F)</button><button type="button" id="k-open">🔎 Search (Ctrl+K)</button><button type="button" id="set">⚙ Settings</button></nav>
+<main id="top">
+<!-- Each tab container is filled by its own file in Files/tabs/ -->
+<div class="tab" id="tab-top"></div><div class="tab" id="tab-p-proj" hidden></div><div class="tab" id="tab-p-notes" hidden></div><div class="tab" id="tab-p-sch" hidden></div>
+</main>
+<script src="Files/tabs/home.js?v=9" integrity="sha256-0d5N35qYxcYWl7Ebz5nkqH8hmTQU2Q9qoBXex+glGNI="></script><script src="Files/tabs/projects.js?v=9" integrity="sha256-8lkROdfsP2WsHMDW55VZPWRDlmV+4P5IpBIFC++3Hk0="></script><script src="Files/tabs/notes.js?v=9" integrity="sha256-IBhlDDo35VaH8/vUDvH/Yoanx/hv0JfLiVHgCAsTyp4="></script><script src="Files/tabs/schedule.js?v=9" integrity="sha256-3oxqGyKa1Dp/z+nBW8+4pX3Re7vFSq0e6SkgWl/P/mg="></script>
+<dialog id="k"><div class="kh"><input id="ki" placeholder="Type an app or task…" autocomplete="off" aria-label="Search"><button type="button" class="btn" id="k-x" aria-label="Close search (Esc)">✕ Esc</button></div><ul id="kr"></ul><small class="khint">Enter opens the first result · Esc or click outside to close</small></dialog>
+<dialog id="hp"><h2>Keyboard shortcuts</h2><ul class="hk-list"><li><kbd>Ctrl</kbd>+<kbd>K</kbd> Search apps &amp; tasks</li><li><kbd>/</kbd> Jump to "Go to web"</li><li><kbd>F</kbd> Fullscreen</li><li><kbd>?</kbd> This help</li><li><kbd>Esc</kbd> Close any popup</li></ul><button class="btn" id="hp-x">Close</button></dialog>
+<dialog id="sd"><h2 id="sdh">Settings</h2><p>Your data lives in this browser only. Back it up before clearing site data.</p>
+<button class="btn" id="ex">Export backup</button><button class="btn" id="im">Import backup</button><button class="btn" id="rs">Reset all</button><button class="btn" id="rl">Reset layout</button><button class="btn" id="hk">Shortcuts (?)</button><button class="btn" id="sd-x">Close</button><input type="file" id="fi" accept=".json" hidden></dialog>
+<script src="Files/tests/startup-test.js?v=12" integrity="sha256-9XOs8IiM9RMJsht8yeqc+/j+JPk5bANmRAPoQq8q8oQ="></script><script src="Files/app.js?v=14" integrity="sha256-JcoBfh3CTKYmSHgoVBMBc7H/ThaJZu0gEqO98DC7OFk=" defer></script><script src="Files/widgets.js?v=13" integrity="sha256-pwBN94If7LrBbP+to4ojXRtFNbsjaQ+A1Kb/5KGH4Mo=" defer></script></body></html>
