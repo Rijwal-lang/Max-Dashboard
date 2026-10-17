@@ -1,0 +1,36 @@
+<!doctype html><meta charset="utf-8"><title>Max Dashboard taskHist pruning test</title>
+<p><strong>Destructive test:</strong> temporarily changes dashboard localStorage. Best run on an isolated test origin/profile, not your everyday dashboard.</p><pre id="out">Running…</pre><script>
+if (!confirm('This test temporarily changes Max Dashboard browser storage. Run only in an isolated browser profile or test origin. Continue?')) { document.getElementById('out').textContent = 'Cancelled. No test changes were made.'; } else {
+"use strict";
+/* Regression: when task history is full, the OLDEST/obsolete entries must be dropped, never the newest. */
+const out=document.getElementById("out"),KEY="maxdashboard:max-dashboard:v4",REV=KEY+":rev";
+const saved={state:localStorage.getItem(KEY),rev:localStorage.getItem(REV)};
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+const ago=n=>iso(new Date(Date.now()-n*86400000)),today=ago(0);
+const pad=(n,w)=>String(n).padStart(w,"0"),LIVE="live0000-test";
+const th={[LIVE]:[today]};
+for(let i=0;i<4300;i++)th["dead"+pad(i,6)+"-t"]=[ago(1+(i%80))];          // 4300 deleted tasks, recent
+for(let i=0;i<1200;i++)th["old"+pad(i,6)+"-t"]=[ago(120+(i%200))];        // 1200 deleted tasks, ancient
+const ph={};for(let i=0;i<450;i++)ph[ago(i)]=1;                              // 450 days of pomodoros
+const state={schema:4,focus:[["Live task",1,today,LIVE]],goals:[],notes:[],proj:[["Custom",42,"#ffffff"]],xp:0,streak:{last:"",n:0},pomo:{day:today,n:1},done:{day:today,n:1},pref:{b:"self",e:"google"},hist:{[today]:1},pomoHist:ph,taskHist:th,timer:{mode:25,T:1500,st:"idle",end:0,id:""},rewards:{}};
+localStorage.setItem(KEY,JSON.stringify(state));localStorage.setItem(REV,"0");
+const f=document.createElement("iframe");f.src="index.html?test=1";f.style.display="none";document.body.appendChild(f);
+function fail(m){throw new Error(m)}
+f.onload=()=>setTimeout(()=>{try{
+  const record=JSON.parse(localStorage.getItem(KEY)),s=record&&record.recordVersion===1?record.state:record,ids=Object.keys(s.taskHist);
+  if(!s.taskHist[LIVE])fail("live task history was dropped");
+  if(ids.length>4000)fail("taskHist exceeded cap: "+ids.length);
+  if(ids.some(i=>i.startsWith("old")))fail("ancient deleted-task history was not pruned");
+  const last=i=>s.taskHist[i][s.taskHist[i].length-1];
+  const keptDead=ids.filter(i=>i.startsWith("dead")),dropped=Object.keys(th).filter(i=>i.startsWith("dead")&&!(i in s.taskHist));
+  if(!dropped.length)fail("expected some overflow to be dropped");
+  const newestDropped=dropped.map(i=>th[i][0]).sort().pop(),oldestKept=keptDead.map(last).sort()[0];
+  if(oldestKept<newestDropped)fail("a NEWER history entry was dropped while an OLDER one was kept");
+  const pk=Object.keys(s.pomoHist);
+  if(pk.length>400)fail("pomoHist exceeded cap: "+pk.length);
+  if(!(today in s.pomoHist))fail("today's pomodoro history was dropped");
+  out.textContent="PASS: overflow drops oldest/obsolete task history, keeps live + newest ("+ids.length+" kept), prunes ancient entries, and pomoHist keeps the newest 400 days.";
+}catch(e){out.textContent="FAIL: "+e.message}finally{for(const[k,v]of Object.entries(saved)){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(_){}}try{f.remove()}catch(_){}}},2500);
+f.onerror=()=>{out.textContent="FAIL: dashboard iframe failed to load"};
+}
+</script>
