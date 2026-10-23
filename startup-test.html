@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>Max Dashboard startup test</title>
+<pre id="out">Loading…</pre><script>
+"use strict";
+const out=document.getElementById("out"),KEY="maxdashboard:max-dashboard:v4",REV=KEY+":rev",OLD="maxdashboard:maxdash:v3",LEGACY="maxdash.v2";
+const keys=[KEY,REV,OLD,LEGACY],saved=Object.fromEntries(keys.map(k=>[k,localStorage.getItem(k)]));
+try{for(const k of keys)localStorage.removeItem(k)}catch(e){}
+const f=document.createElement("iframe");f.src="index.html?test=1";f.style.display="none";document.body.appendChild(f);
+function restore(){for(const[k,v]of Object.entries(saved)){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(_){}}try{f.remove()}catch(_){}}
+f.onload=()=>setTimeout(()=>{
+  try{
+    const d=f.contentDocument?.documentElement,s=f.contentWindow,errors=s.__MAX_STARTUP_ERRORS||[];
+    if(d?.dataset.startupTest!=="pass")throw new Error("Dashboard startup test failed: "+(errors.join(" | ")||d?.dataset.startupErrors||"unknown startup failure"));
+    const record=JSON.parse(f.contentWindow.localStorage.getItem(KEY)),state=record&&record.recordVersion===1?record.state:record;
+    if(!state||state.schema!==4)throw new Error("State schema was not initialized correctly.");
+    out.textContent="PASS: dashboard booted through the explicit startup path with no uncaught errors.";
+  }catch(e){out.textContent="FAIL: "+e.message}
+  finally{restore()}
+},1800);
+f.onerror=()=>{out.textContent="FAIL: Dashboard iframe failed to load.";restore()};
+</script>
